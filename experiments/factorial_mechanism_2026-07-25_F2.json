@@ -1,0 +1,149 @@
+{
+  "protocol_id": "factorial_mechanism_2026-07-25_F2",
+  "preregistered_at": "2026-07-25",
+  "phase": "factorial_mechanism_ablation_dealigned",
+  "objective": "Compare generation on ep x illiq mechanism truth with no literal truth-column names in the prompt examples. Structural example alignment and correlated proxies still limit attribution to independent hypothesis understanding.",
+  "query": "在给定的合成研究面板上，寻找对下月收益具有真实增量预测力的横截面因子假设。",
+  "dgp": {
+    "kind": "mechanism",
+    "mech_kind": "conditional",
+    "x_col": "ep",
+    "y_col": "illiq",
+    "inject_ic": 0.06,
+    "n_assets": 150,
+    "n_months": 150,
+    "alternative_seeds": [
+      2110,
+      2111,
+      2112,
+      2113,
+      2114
+    ],
+    "null_seeds": [
+      2210,
+      2211
+    ],
+    "seed_policy": "Development seed blocks begin at 2110. Evaluation seeds 3000+ remain reserved; null panels use IC=0.",
+    "dealignment_check": "Truth columns ep and illiq are absent from literal recipe/output examples. Structural example alignment is a separate limitation."
+  },
+  "budgets": {
+    "generation_attempts": 24,
+    "oracle_trials": 12
+  },
+  "oracle": {
+    "dsr_min": 0.95,
+    "truth_loading_abs_spearman": 0.5,
+    "truth_definition": "abs overall Spearman correlation between candidate values and the per-month-standardized injected mechanism signal std(F_ep * sign(F_illiq))",
+    "threshold_sensitivity": "For a separate sensitivity analysis, recompute true-accept counts from saved candidate truth_loading values at thresholds 0.4 and 0.6; the runner classifies truth at the primary threshold 0.5.",
+    "null_accept_rate_per_trial_max": 0.1
+  },
+  "glm": {
+    "provider": "zhipu",
+    "model": "glm-4.7-flash",
+    "prompt_version": "glm-b1-v5-factorial",
+    "max_tokens": 400,
+    "max_retries": 2,
+    "sampling": {
+      "temperature": 0.7,
+      "top_p": 0.95
+    },
+    "request_interpretation": "frozen_host_request_no_extra_provider_call",
+    "prompt_freeze_note": "Recipe/output examples are frozen protocol inputs. Literal de-alignment does not remove structural form guidance."
+  },
+  "vocabularies": {
+    "narrow": [
+      "value",
+      "liquidity"
+    ],
+    "wide": null
+  },
+  "cells": [
+    {
+      "cell_id": "vn_r0_h0",
+      "vocabulary": "narrow",
+      "recipe_prompt": false,
+      "hard_constraint": false
+    },
+    {
+      "cell_id": "vn_r0_h1",
+      "vocabulary": "narrow",
+      "recipe_prompt": false,
+      "hard_constraint": true
+    },
+    {
+      "cell_id": "vn_r1_h0",
+      "vocabulary": "narrow",
+      "recipe_prompt": true,
+      "hard_constraint": false
+    },
+    {
+      "cell_id": "vn_r1_h1",
+      "vocabulary": "narrow",
+      "recipe_prompt": true,
+      "hard_constraint": true
+    },
+    {
+      "cell_id": "vw_r0_h0",
+      "vocabulary": "wide",
+      "recipe_prompt": false,
+      "hard_constraint": false
+    },
+    {
+      "cell_id": "vw_r0_h1",
+      "vocabulary": "wide",
+      "recipe_prompt": false,
+      "hard_constraint": true
+    },
+    {
+      "cell_id": "vw_r1_h0",
+      "vocabulary": "wide",
+      "recipe_prompt": true,
+      "hard_constraint": false
+    },
+    {
+      "cell_id": "vw_r1_h1",
+      "vocabulary": "wide",
+      "recipe_prompt": true,
+      "hard_constraint": true
+    }
+  ],
+  "baseline_arms": [
+    {
+      "arm_id": "random_narrow",
+      "generator": "random",
+      "vocabulary": "narrow"
+    },
+    {
+      "arm_id": "random_wide",
+      "generator": "random",
+      "vocabulary": "wide"
+    },
+    {
+      "arm_id": "recipe_random_narrow",
+      "generator": "recipe_random",
+      "vocabulary": "narrow"
+    },
+    {
+      "arm_id": "recipe_random_wide",
+      "generator": "recipe_random",
+      "vocabulary": "wide"
+    }
+  ],
+  "interpretation": {
+    "primary_metric": "pooled per-trial true-accept rate on alternative panels (true = would-be ACCEPT with truth loading >= 0.5)",
+    "minimum_pooled_trials": 20,
+    "decision_rule": "A comparison is CONFIRMED for a side only when its Wilson 95% lower bound exceeds the other side's Wilson 95% upper bound; overlapping intervals read INCONCLUSIVE; either side below minimum_pooled_trials reads INSUFFICIENT_DATA. No point-estimate-only claims.",
+    "clustering_caveat": "Trials cluster within seeds; per-seed discovery counts are reported alongside and any writeup must state the number of independent seeds.",
+    "comparisons": {
+      "Q1_model_beyond_template": "GLM cells with recipe_prompt=true (pooled) vs recipe_random arms (pooled).",
+      "Q2_recipe_prompt_effect": "Recipe-prompt on versus off, pooled over other factors. Recipe prompting also changes the output example; the contrast does not isolate recipe text alone.",
+      "Q3_vocabulary_effect": "GLM narrow vs wide vocabulary (pooled over other factors).",
+      "Q4_hard_constraint_effect": "GLM hard cross-family constraint on vs off (pooled over other factors).",
+      "floor_glm_vs_random": "All GLM cells pooled vs pure-random arms."
+    },
+    "null_rule": "Pooled null accepts per trial reported with Wilson upper bound against the 0.1 target; with 2 null seeds this is DESCRIPTIVE ONLY."
+  },
+  "recipe_conformance_policy": "Declared recipes are structurally host-validated and recorded; non-conformance does not block oracle evaluation.",
+  "execution_note": "Local baseline arms need no credentials. GLM cells require GLM_API_KEY; resume individual arms with --arms and quote comma lists in PowerShell.",
+  "output_dir": "outputs/agent/factorial_mechanism_20260725_F2"
+}

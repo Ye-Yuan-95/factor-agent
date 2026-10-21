@@ -1,0 +1,38 @@
+[
+  {
+    "name": "rev_smooth3",
+    "expression": "-1 * ts_mean(mom1m, 3)",
+    "rationale": "Test whether smoothing short-term reversal over 3 months reduces turnover while retaining predictive information.",
+    "family": "momentum"
+  },
+  {
+    "name": "illiq_mom",
+    "expression": "rank(illiq) * rank(mom6m)",
+    "rationale": "Test whether momentum has stronger predictive association in illiquid names, as a limits-to-arbitrage hypothesis.",
+    "family": "liquidity"
+  },
+  {
+    "name": "vol_of_vol6",
+    "expression": "ts_std(retvol, 6)",
+    "rationale": "Test whether volatility-of-volatility adds predictive information beyond volatility itself.",
+    "family": "risk"
+  },
+  {
+    "name": "cheap_quality",
+    "expression": "zscore(bm) + zscore(roa)",
+    "rationale": "Test whether combining value and profitability improves predictive information over value alone.",
+    "family": "value"
+  },
+  {
+    "name": "turn_trend",
+    "expression": "delta(turn, 6) / ts_std(turn, 12)",
+    "rationale": "Test whether normalized turnover changes predict subsequent returns under an attention-and-crowding hypothesis.",
+    "family": "liquidity"
+  },
+  {
+    "name": "sandbox_should_fail",
+    "expression": "rank(forward_return)",
+    "rationale": "Deliberate leakage attempt -- must be rejected by the sandbox, not counted as a trial.",
+    "family": "test"
+  }
+]

@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: >-
+  Validator-first factor research agent: statistical gates inside the
+  discovery loop
+message: If you use this software, please cite it as below.
+type: software
+version: 0.1.0
+authors:
+  - alias: Ye-Yuan-95
+repository-code: "https://github.com/Ye-Yuan-95/factor-agent"
+abstract: >-
+  Research software for factor candidate generation, statistical validation,
+  portfolio evaluation and synthetic experiments. Includes source-bound process
+  certificates, a one-shot test lockbox and empirical FDP, false-positive-rate
+  and power reporting under explicit truth definitions and sample limits.
+  The real-data adapter is A-share specific.
+keywords:
+  - factor investing
+  - false discovery rate
+  - deflated sharpe ratio
+  - research agent
+  - point-in-time data
+license: Apache-2.0

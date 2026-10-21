@@ -1,0 +1,144 @@
+{
+  "protocol_id": "hybrid_form_aware_2026-07-31_F4b",
+  "preregistered_at": "2026-07-31",
+  "phase": "form_aware_hybrid_floor",
+  "objective": "Test form completion: after gate-progress reward reaches 0.4, prioritize untried forms for the same ordered column pair. Compare with hybrid random, form-blind enumeration and canonical-form enumeration using paired random numbers.",
+  "query": "On a synthetic research panel, find cross-family factor hypotheses with genuine incremental predictive value for next-period returns.",
+  "dgp": {
+    "kind": "mechanism",
+    "mech_kind": "conditional",
+    "x_col": "ep",
+    "y_col": "illiq",
+    "inject_ic": 0.06,
+    "n_assets": 150,
+    "n_months": 150,
+    "alternative_seeds": [
+      2300,
+      2301,
+      2302,
+      2303,
+      2304,
+      2305,
+      2306,
+      2307,
+      2308,
+      2309,
+      2310,
+      2311,
+      2312,
+      2313,
+      2314
+    ],
+    "null_seeds": [
+      2400,
+      2401,
+      2402,
+      2403,
+      2404
+    ],
+    "seed_policy": "Fresh development-evaluation seeds selected before execution. Seeds 2120-2124 are labelled development only. Sealed seeds 3000+ remain untouched."
+  },
+  "budgets": {
+    "generation_attempts": 72,
+    "oracle_trials": 36
+  },
+  "oracle": {
+    "dsr_min": 0.95,
+    "truth_loading_abs_spearman": 0.5,
+    "truth_definition": "Absolute overall Spearman correlation between candidate values and the per-month-standardized injected mechanism signal std(F_ep * sign(F_illiq)).",
+    "null_accept_rate_per_trial_max": 0.1
+  },
+  "glm": {
+    "provider": "none",
+    "model": "none",
+    "prompt_version": "none",
+    "max_tokens": 1,
+    "max_retries": 0,
+    "sampling": {},
+    "note": "F4b is fully local and contains no LLM/API arm."
+  },
+  "vocabularies": {
+    "narrow": [
+      "value",
+      "liquidity"
+    ]
+  },
+  "cells": [],
+  "baseline_arms": [
+    {
+      "arm_id": "hybrid_random_b36",
+      "generator": "hybrid_random",
+      "vocabulary": "narrow",
+      "oracle_trials": 36,
+      "generation_attempts": 72,
+      "scenarios": [
+        "alternative",
+        "null"
+      ]
+    },
+    {
+      "arm_id": "hybrid_form_aware_b36",
+      "generator": "hybrid_form_aware",
+      "vocabulary": "narrow",
+      "oracle_trials": 36,
+      "generation_attempts": 72,
+      "scenarios": [
+        "alternative",
+        "null"
+      ]
+    },
+    {
+      "arm_id": "form_blind_b36",
+      "generator": "form_blind",
+      "vocabulary": "narrow",
+      "oracle_trials": 36,
+      "generation_attempts": 72,
+      "scenarios": [
+        "alternative",
+        "null"
+      ]
+    },
+    {
+      "arm_id": "canonical_form_b36",
+      "generator": "enumerator",
+      "vocabulary": "narrow",
+      "oracle_trials": 36,
+      "generation_attempts": 72,
+      "scenarios": [
+        "alternative",
+        "null"
+      ]
+    }
+  ],
+  "interpretation": {
+    "mode": "f4b_paired_prefix",
+    "checkpoints": [
+      12,
+      24,
+      36
+    ],
+    "prefix_policy": "Run one ordered B36 stream per arm and seed. B12 and B24 are immutable prefixes of the same stream; never rerun them as separate random paths.",
+    "form_completion_reward_min": 0.4,
+    "primary_comparison": "hybrid_form_aware_b36 minus hybrid_random_b36 at B36 on alternative seeds.",
+    "primary_continuous_test": "One-sided exact paired sign-flip permutation test on seed-level max truth loading, statistic = mean paired difference, alpha = 0.05. Report mean and median paired effects.",
+    "primary_binary_readout": "One-sided exact paired McNemar/binomial test on discovery discordances; corroborative, not a second co-primary endpoint.",
+    "secondary_comparison": "hybrid_form_aware_b36 minus form_blind_b36 at B36, with the same continuous and binary paired tests.",
+    "budget_trend": "Within each arm, test B36 minus B12 using the same paired exact procedures. B24 is reported as a descriptive intermediate checkpoint.",
+    "multiplicity": "The primary continuous test alone controls the main alpha at 0.05. Secondary continuous tests are Holm-adjusted as one family; binary tests are labelled corroborative.",
+    "success_rule": "F4b supports the intervention only if the primary continuous one-sided exact p <= 0.05 and the mean paired effect is positive, while every safety constraint passes.",
+    "safety_constraints": {
+      "valid_candidate_rate_margin": "At B36, mean paired valid-candidate-rate difference F4b minus hybrid_random must be >= -0.05.",
+      "relative_null_accept_margin": "Mean paired null accept-rate difference F4b minus hybrid_random must be <= 0.02.",
+      "absolute_null_target": "The one-sided 95% Wilson upper bound for pooled F4b null accepts per trial must be <= 0.10.",
+      "interpretation": "These are predeclared fail-fast engineering constraints, not claims of equivalence."
+    },
+    "canonical_reference_label": "The canonical-form enumerator has no truth-pair knowledge but is privileged with the injected truth's level-gate form; it is a reference line, not an upper bound.",
+    "analysis_script": "benchmark/f4b_analysis.py",
+    "minimum_pooled_trials": 20,
+    "seed_independence": "Seeds 2120-2124 are development-contaminated and excluded from inferential evaluation."
+  },
+  "recipe_conformance_policy": "Every declared recipe is checked by AST. hybrid_form_aware chooses the recipe implied by its selected gate form.",
+  "leakage_policy": "Scheduling and form priority see only sanitized gate outcomes and failed-gate progress. Truth loading is computed only in the evaluation harness and never passed to a generator.",
+  "execution_note": "Fully local, no API credentials. Protocol and all source-fingerprint files must match a committed HEAD before the harness creates output.",
+  "output_dir": "outputs/agent/hybrid_form_aware_20260731_F4b"
+}

@@ -1,0 +1,105 @@
+{
+  "protocol_id": "hybrid_ladder_2026-07-28_F4",
+  "preregistered_at": "2026-07-28",
+  "phase": "hybrid_exploration_floor",
+  "objective": "Measure local hybrid exploration using scheduled recipe/family regions, coverage feedback and novelty filtering. Compare random hypothesis filling with matched local reference generators at equal budgets.",
+  "query": "在给定的合成研究面板上，寻找对下月收益具有真实增量预测力的横截面因子假设。",
+  "dgp": {
+    "kind": "mechanism",
+    "mech_kind": "conditional",
+    "x_col": "ep",
+    "y_col": "illiq",
+    "inject_ic": 0.06,
+    "n_assets": 150,
+    "n_months": 150,
+    "alternative_seeds": [
+      2120,
+      2121,
+      2122,
+      2123,
+      2124
+    ],
+    "null_seeds": [
+      2220,
+      2221
+    ],
+    "seed_policy": "Use paired development seeds across comparison arms. Evaluation seeds 3000+ remain reserved."
+  },
+  "budgets": {
+    "generation_attempts": 72,
+    "oracle_trials": 36
+  },
+  "oracle": {
+    "dsr_min": 0.95,
+    "truth_loading_abs_spearman": 0.5,
+    "truth_definition": "abs overall Spearman correlation between candidate values and the per-month-standardized injected mechanism signal std(F_ep * sign(F_illiq))",
+    "threshold_sensitivity": "For a separate sensitivity analysis, recompute true-accept counts from saved candidate truth_loading values at thresholds 0.4 and 0.6; the runner classifies truth at the primary threshold 0.5.",
+    "null_accept_rate_per_trial_max": 0.1
+  },
+  "glm": {
+    "provider": "zhipu",
+    "model": "glm-4.7-flash",
+    "prompt_version": "glm-b1-v6-hybrid",
+    "max_tokens": 400,
+    "max_retries": 2,
+    "sampling": {
+      "temperature": 0.7,
+      "top_p": 0.95
+    },
+    "request_interpretation": "frozen_host_request_no_extra_provider_call",
+    "note": "This protocol contains local generator arms only; no LLM API credentials are required."
+  },
+  "vocabularies": {
+    "narrow": [
+      "value",
+      "liquidity"
+    ]
+  },
+  "cells": [],
+  "baseline_arms": [
+    {
+      "arm_id": "hybrid_random_b12",
+      "generator": "hybrid_random",
+      "vocabulary": "narrow",
+      "oracle_trials": 12,
+      "generation_attempts": 24,
+      "scenarios": [
+        "alternative"
+      ]
+    },
+    {
+      "arm_id": "hybrid_random_b24",
+      "generator": "hybrid_random",
+      "vocabulary": "narrow",
+      "oracle_trials": 24,
+      "generation_attempts": 48,
+      "scenarios": [
+        "alternative"
+      ]
+    },
+    {
+      "arm_id": "hybrid_random_b36",
+      "generator": "hybrid_random",
+      "vocabulary": "narrow",
+      "oracle_trials": 36,
+      "generation_attempts": 72,
+      "scenarios": [
+        "alternative",
+        "null"
+      ]
+    }
+  ],
+  "interpretation": {
+    "mode": "budget_ladder",
+    "primary_metric": "per-trial true-accept rate on alternative panels, with per-seed discovery counts (k/5) alongside",
+    "minimum_pooled_trials": 20,
+    "decision_rule": "CONFIRMED for a side only when its one-sided 95% Wilson lower bound exceeds the other side's upper bound; overlap reads INCONCLUSIVE; below minimum_pooled_trials reads INSUFFICIENT_DATA. Cross-protocol comparison against F3 uses the same paired seeds and is reported per-seed as well as pooled.",
+    "reading_guide": "Compare hybrid search with reference generators under matched inputs, seeds and budgets. Measure coverage and paired seed outcomes before attributing differences to search policy.",
+    "clustering_caveat": "Trials cluster within seeds; 5 independent alternative seeds per point. Statements about superiority require the paired per-seed view, not the pooled rate alone.",
+    "null_rule": "Null panels at b36 only; descriptive Wilson upper bound against the 0.1 target."
+  },
+  "recipe_conformance_policy": "The hybrid random generator declares the recipe its scheduled arm assigned and is conformant by construction; the harness verifies rather than trusts.",
+  "leakage_policy": "The bandit reward is computed from gate feedback in the sanitized history only (agent/exploration.py gate_progress_reward takes failed_gates and decision, nothing else). Truth loading never enters the exploration policy; if it did, the synthetic result would not transfer to a real panel.",
+  "execution_note": "Fully local, no credentials required.",
+  "output_dir": "outputs/agent/hybrid_ladder_20260728_F4"
+}

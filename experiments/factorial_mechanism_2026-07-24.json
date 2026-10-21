@@ -1,0 +1,147 @@
+{
+  "protocol_id": "factorial_mechanism_2026-07-24_F1",
+  "preregistered_at": "2026-07-24",
+  "phase": "factorial_mechanism_ablation",
+  "objective": "Compare generator discovery on mechanism-truth panels while varying vocabulary, recipe prompting and family constraints. Known-expression controls assess oracle behavior separately; prompt/truth alignment limits independent model attribution.",
+  "query": "在给定的合成研究面板上，寻找对下月收益具有真实增量预测力的横截面因子假设。",
+  "dgp": {
+    "kind": "mechanism",
+    "mech_kind": "conditional",
+    "x_col": "mom1m",
+    "y_col": "turn",
+    "inject_ic": 0.06,
+    "n_assets": 150,
+    "n_months": 150,
+    "alternative_seeds": [
+      2100,
+      2101,
+      2102,
+      2103,
+      2104
+    ],
+    "null_seeds": [
+      2200,
+      2201
+    ],
+    "seed_policy": "Development seeds are in the 2000+ range. Evaluation seeds 3000+ remain reserved; null panels use IC=0."
+  },
+  "budgets": {
+    "generation_attempts": 24,
+    "oracle_trials": 12
+  },
+  "oracle": {
+    "dsr_min": 0.95,
+    "truth_loading_abs_spearman": 0.5,
+    "truth_definition": "abs overall Spearman correlation between candidate values and the per-month-standardized injected mechanism signal std(F_mom1m * sign(F_turn))",
+    "null_accept_rate_per_trial_max": 0.1
+  },
+  "glm": {
+    "provider": "zhipu",
+    "model": "glm-4.7-flash",
+    "prompt_version": "glm-b1-v5-factorial",
+    "max_tokens": 400,
+    "max_retries": 2,
+    "sampling": {
+      "temperature": 0.7,
+      "top_p": 0.95
+    },
+    "request_interpretation": "frozen_host_request_no_extra_provider_call"
+  },
+  "vocabularies": {
+    "narrow": [
+      "momentum",
+      "liquidity"
+    ],
+    "wide": null
+  },
+  "cells": [
+    {
+      "cell_id": "vn_r0_h0",
+      "vocabulary": "narrow",
+      "recipe_prompt": false,
+      "hard_constraint": false
+    },
+    {
+      "cell_id": "vn_r0_h1",
+      "vocabulary": "narrow",
+      "recipe_prompt": false,
+      "hard_constraint": true
+    },
+    {
+      "cell_id": "vn_r1_h0",
+      "vocabulary": "narrow",
+      "recipe_prompt": true,
+      "hard_constraint": false
+    },
+    {
+      "cell_id": "vn_r1_h1",
+      "vocabulary": "narrow",
+      "recipe_prompt": true,
+      "hard_constraint": true
+    },
+    {
+      "cell_id": "vw_r0_h0",
+      "vocabulary": "wide",
+      "recipe_prompt": false,
+      "hard_constraint": false
+    },
+    {
+      "cell_id": "vw_r0_h1",
+      "vocabulary": "wide",
+      "recipe_prompt": false,
+      "hard_constraint": true
+    },
+    {
+      "cell_id": "vw_r1_h0",
+      "vocabulary": "wide",
+      "recipe_prompt": true,
+      "hard_constraint": false
+    },
+    {
+      "cell_id": "vw_r1_h1",
+      "vocabulary": "wide",
+      "recipe_prompt": true,
+      "hard_constraint": true
+    }
+  ],
+  "baseline_arms": [
+    {
+      "arm_id": "random_narrow",
+      "generator": "random",
+      "vocabulary": "narrow"
+    },
+    {
+      "arm_id": "random_wide",
+      "generator": "random",
+      "vocabulary": "wide"
+    },
+    {
+      "arm_id": "recipe_random_narrow",
+      "generator": "recipe_random",
+      "vocabulary": "narrow"
+    },
+    {
+      "arm_id": "recipe_random_wide",
+      "generator": "recipe_random",
+      "vocabulary": "wide"
+    }
+  ],
+  "interpretation": {
+    "primary_metric": "pooled per-trial true-accept rate on alternative panels (true = would-be ACCEPT with truth loading >= 0.5)",
+    "minimum_pooled_trials": 20,
+    "decision_rule": "A comparison is CONFIRMED for a side only when its Wilson 95% lower bound exceeds the other side's Wilson 95% upper bound; overlapping intervals read INCONCLUSIVE; either side below minimum_pooled_trials reads INSUFFICIENT_DATA. No point-estimate-only claims.",
+    "clustering_caveat": "Trials cluster within seeds; per-seed discovery counts are reported alongside and any writeup must state the number of independent seeds.",
+    "comparisons": {
+      "Q1_model_beyond_template": "GLM recipe-prompted cells versus recipe-random controls. Prompt/truth alignment must qualify attribution to model capability.",
+      "Q2_recipe_prompt_effect": "GLM recipe_prompt on vs off (pooled over other factors).",
+      "Q3_vocabulary_effect": "GLM narrow vs wide vocabulary (pooled over other factors).",
+      "Q4_hard_constraint_effect": "GLM hard cross-family constraint on vs off (pooled over other factors).",
+      "floor_glm_vs_random": "All GLM cells pooled vs pure-random arms."
+    },
+    "null_rule": "Pooled null accepts per trial reported with Wilson upper bound against the 0.1 target; with 2 null seeds this is DESCRIPTIVE ONLY, never a clean-null claim.",
+    "attribution_limit": "Prompt examples align with injected truth. Differences cannot isolate independent model discovery from template copying."
+  },
+  "recipe_conformance_policy": "GLM recipe_name declarations are structurally validated by the host (check_recipe_conformance) and RECORDED as a conformance rate; non-conformant proposals still go to the oracle so discovery rates stay comparable across cells.",
+  "execution_note": "Baseline arms run locally without credentials. GLM cells require GLM_API_KEY in the executing shell and are individually resumable via --arms glm_<cell_id>.",
+  "output_dir": "outputs/agent/factorial_mechanism_20260724"
+}

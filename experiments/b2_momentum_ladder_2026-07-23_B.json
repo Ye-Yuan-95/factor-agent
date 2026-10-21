@@ -1,0 +1,67 @@
+{
+  "protocol_id": "b2-momentum-ladder-B-new-ops-20260723",
+  "phase": "ladder_pilot_operators",
+  "preregistered_at": "2026-07-23",
+  "objective": "Compare random, adaptive and GLM generators under frozen vocabulary/operator constraints on identical paired panels, seeds and budgets.",
+  "generators": [
+    "random",
+    "adaptive",
+    "glm"
+  ],
+  "query": "Find low-redundancy momentum factors with stable validation-period performance",
+  "family": "momentum",
+  "dgp": {
+    "kind": "gen2",
+    "n_assets": 150,
+    "n_months": 150,
+    "true_factor": "mom1m",
+    "inject_ic": 0.06,
+    "alternative_seeds": [
+      7,
+      17,
+      27,
+      37,
+      47
+    ],
+    "null_seeds": [
+      107,
+      117
+    ]
+  },
+  "budgets": {
+    "generation_attempts": 8,
+    "oracle_trials": 4
+  },
+  "oracle": {
+    "dsr_min": 0.95,
+    "truth_loading_abs_spearman": 0.5,
+    "target_empirical_fdp": 0.25,
+    "null_accept_rate_per_trial_max": 0.1
+  },
+  "glm": {
+    "provider": "zhipu",
+    "model": "glm-4.7-flash",
+    "prompt_version": "glm-b1-v3-conditional",
+    "max_tokens": 400,
+    "max_retries": 2,
+    "request_interpretation": "frozen_host_request_no_extra_provider_call"
+  },
+  "go_no_go": {
+    "minimum_completed_alternative_seeds": 5,
+    "minimum_completed_null_seeds": 2,
+    "minimum_glm_valid_candidate_rate": 0.5,
+    "required_family_adherence": 1.0,
+    "minimum_glm_would_be_accepts_for_fdp_decision": 5,
+    "maximum_glm_pooled_empirical_fdp": 0.25,
+    "maximum_glm_null_accept_rate_per_trial": 0.1,
+    "glm_power_must_be_at_least_best_baseline": true,
+    "insufficient_denominator_result": "INCONCLUSIVE",
+    "scope": "Paired synthetic generator comparison only. These criteria do not certify real-panel discoveries, open a test lockbox or authorize portfolio deployment."
+  },
+  "generator_spec": {
+    "vocabulary": "base",
+    "operators": null
+  },
+  "arm_note": "operators=None means the full current FUNCTIONS registry incl. industry_demean and ts_corr; only this differs from arm A.",
+  "output_dir": "outputs/agent/b2_ladder_20260723_B"
+}

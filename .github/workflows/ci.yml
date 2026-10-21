@@ -1,0 +1,51 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  dummy:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install core and test dependencies
+        run: pip install -e ".[dev]"
+      - name: README dummy workflow without optimization or LLM extras
+        run: python -m pytest tests/test_cli.py::test_readme_dummy_workflow -q
+
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.10", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install (dev + opt)
+        run: pip install -e ".[dev,opt]"
+      - name: Full test suite (includes the five-step fresh-clone chain)
+        run: python -m pytest tests -q
+      # Coverage guard only; scientific correctness of explanations needs review.
+      - name: Source documentation inventory
+        run: python scripts/audit_comments.py
+      - name: Wheel smoke
+        run: |
+          pip install build
+          python -m build --wheel
+          pip install --force-reinstall --no-deps dist/*.whl
+          cd "$RUNNER_TEMP"
+          python -I "$GITHUB_WORKSPACE/scripts/wheel_smoke.py"
+        shell: bash

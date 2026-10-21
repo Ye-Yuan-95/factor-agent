@@ -1,0 +1,59 @@
+# data panels and run artifacts are never tracked
+*.csv
+data*/
+outputs/
+runs/
+
+# python
+__pycache__/
+*.py[co]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# notebooks / editors / OS
+.ipynb_checkpoints/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# scratch
+.tmp/
+*.tmp
+# secrets and local env
+.env
+.env.*
+*credentials*.json
+*secret*.json
+*token*.json
+
+# tool caches / large binaries
+.ruff_cache/
+.coverage
+htmlcov/
+*.parquet
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.npz
+
+# Personal research records and generated review reports stay offline.
+private/
+milestones/
+conclusions/
+MILESTONE*.md
+CONCLUSION*.md
+milestone*.md
+conclusion*.md
+*_milestone.md
+*_conclusions.md
+docs/CODE_COMMENT_AUDIT.md
+docs/RELEASE_VALIDATION.md
+docs/validation_requirements_*.txt
+# Record resolved experiment environments alongside private run artifacts.
+requirements.lock.txt

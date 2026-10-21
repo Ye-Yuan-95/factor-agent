@@ -1,0 +1,170 @@
+{
+  "protocol_id": "factorial_mechanism_2026-07-27_F3",
+  "preregistered_at": "2026-07-27",
+  "phase": "budget_ladder_with_enumerator_bound",
+  "objective": "Compare GLM, recipe-random and canonical-form enumeration at budgets 12/24/36. The enumerator is a form-privileged reference rather than an exploration upper bound.",
+  "query": "在给定的合成研究面板上，寻找对下月收益具有真实增量预测力的横截面因子假设。",
+  "dgp": {
+    "kind": "mechanism",
+    "mech_kind": "conditional",
+    "x_col": "ep",
+    "y_col": "illiq",
+    "inject_ic": 0.06,
+    "n_assets": 150,
+    "n_months": 150,
+    "alternative_seeds": [
+      2120,
+      2121,
+      2122,
+      2123,
+      2124
+    ],
+    "null_seeds": [
+      2220,
+      2221
+    ],
+    "seed_policy": "Development seed blocks begin at 2120 and 2220. Evaluation seeds 3000+ remain reserved."
+  },
+  "budgets": {
+    "generation_attempts": 36,
+    "oracle_trials": 12
+  },
+  "oracle": {
+    "dsr_min": 0.95,
+    "truth_loading_abs_spearman": 0.5,
+    "truth_definition": "abs overall Spearman correlation between candidate values and the per-month-standardized injected mechanism signal std(F_ep * sign(F_illiq))",
+    "threshold_sensitivity": "For a separate sensitivity analysis, recompute true-accept counts from saved candidate truth_loading values at thresholds 0.4 and 0.6; the runner classifies truth at the primary threshold 0.5.",
+    "null_accept_rate_per_trial_max": 0.1
+  },
+  "glm": {
+    "provider": "zhipu",
+    "model": "glm-4.7-flash",
+    "prompt_version": "glm-b1-v5-factorial",
+    "max_tokens": 400,
+    "max_retries": 2,
+    "sampling": {
+      "temperature": 0.7,
+      "top_p": 0.95
+    },
+    "request_interpretation": "frozen_host_request_no_extra_provider_call",
+    "cell_choice_note": "Use narrow vocabulary, recipe prompting and hard cross-family constraints. Generation-attempt budgets are three times oracle-trial budgets; report actual attempted and completed trials."
+  },
+  "vocabularies": {
+    "narrow": [
+      "value",
+      "liquidity"
+    ]
+  },
+  "cells": [
+    {
+      "cell_id": "vn_r1_h1_b12",
+      "vocabulary": "narrow",
+      "recipe_prompt": true,
+      "hard_constraint": true,
+      "oracle_trials": 12,
+      "generation_attempts": 36,
+      "scenarios": [
+        "alternative"
+      ]
+    },
+    {
+      "cell_id": "vn_r1_h1_b24",
+      "vocabulary": "narrow",
+      "recipe_prompt": true,
+      "hard_constraint": true,
+      "oracle_trials": 24,
+      "generation_attempts": 72,
+      "scenarios": [
+        "alternative"
+      ]
+    },
+    {
+      "cell_id": "vn_r1_h1_b36",
+      "vocabulary": "narrow",
+      "recipe_prompt": true,
+      "hard_constraint": true,
+      "oracle_trials": 36,
+      "generation_attempts": 108,
+      "scenarios": [
+        "alternative"
+      ]
+    }
+  ],
+  "baseline_arms": [
+    {
+      "arm_id": "enumerator_narrow_b12",
+      "generator": "enumerator",
+      "vocabulary": "narrow",
+      "oracle_trials": 12,
+      "generation_attempts": 24,
+      "scenarios": [
+        "alternative"
+      ]
+    },
+    {
+      "arm_id": "enumerator_narrow_b24",
+      "generator": "enumerator",
+      "vocabulary": "narrow",
+      "oracle_trials": 24,
+      "generation_attempts": 48,
+      "scenarios": [
+        "alternative"
+      ]
+    },
+    {
+      "arm_id": "enumerator_narrow_b36",
+      "generator": "enumerator",
+      "vocabulary": "narrow",
+      "oracle_trials": 36,
+      "generation_attempts": 72,
+      "scenarios": [
+        "alternative",
+        "null"
+      ]
+    },
+    {
+      "arm_id": "recipe_random_narrow_b12",
+      "generator": "recipe_random",
+      "vocabulary": "narrow",
+      "oracle_trials": 12,
+      "generation_attempts": 24,
+      "scenarios": [
+        "alternative"
+      ]
+    },
+    {
+      "arm_id": "recipe_random_narrow_b24",
+      "generator": "recipe_random",
+      "vocabulary": "narrow",
+      "oracle_trials": 24,
+      "generation_attempts": 48,
+      "scenarios": [
+        "alternative"
+      ]
+    },
+    {
+      "arm_id": "recipe_random_narrow_b36",
+      "generator": "recipe_random",
+      "vocabulary": "narrow",
+      "oracle_trials": 36,
+      "generation_attempts": 72,
+      "scenarios": [
+        "alternative",
+        "null"
+      ]
+    }
+  ],
+  "interpretation": {
+    "mode": "budget_ladder",
+    "primary_metric": "per (generator, budget): pooled per-trial true-accept rate on alternative panels, with per-seed discovery counts (k/5) reported alongside",
+    "minimum_pooled_trials": 20,
+    "decision_rule": "Pairwise per budget (glm vs enumerator, glm vs recipe_random, enumerator vs recipe_random): CONFIRMED for a side only when its Wilson 95% lower bound exceeds the other side's Wilson 95% upper bound; overlap reads INCONCLUSIVE; below minimum_pooled_trials reads INSUFFICIENT_DATA.",
+    "enumerator_prediction": "Narrow vocabulary has 48 ordered cross-family pairs (4 value x 6 liquidity x 2 directions). If exactly one ordered pair (ep, illiq) loads >= 0.5 in canonical form, the enumerator's expected per-seed discovery is ~B/48: 0.25 / 0.50 / 0.75 at B = 12 / 24 / 36. Correlated near-columns (e.g. other value columns vs ep) may push measured above predicted -- that deviation is a REPORTED calibration of the truth-loading threshold, not an error.",
+    "reading_guide": "Compare GLM, recipe-random and enumerator curves at equal budgets. Report paired seed outcomes; pooled curves alone cannot establish superiority or explain its cause.",
+    "null_rule": "Local-control null panels run at budget 36. Wilson bounds are descriptive; GLM null panels are not evaluated by this protocol.",
+    "clustering_caveat": "Trials cluster within seeds; 5 independent alternative seeds per point."
+  },
+  "recipe_conformance_policy": "Declared recipes are host-validated and recorded. The canonical enumerator declares conditional_signal; the host verifies conformance.",
+  "execution_note": "Baseline arms (enumerator, recipe_random) run locally without credentials. GLM cells require GLM_API_KEY and the project interpreter; resumable via --arms; quote the comma list in PowerShell.",
+  "output_dir": "outputs/agent/factorial_mechanism_20260727_F3"
+}

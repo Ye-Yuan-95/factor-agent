@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "factor-validity-agent"
+version = "0.1.0"
+description = "A-share factor research with candidate generation, statistical validation, portfolio evaluation and synthetic experiments."
+requires-python = ">=3.10"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{name = "Ye-Yuan-95"}]
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "scipy>=1.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/Ye-Yuan-95/factor-agent"
+Repository = "https://github.com/Ye-Yuan-95/factor-agent"
+
+[project.scripts]
+factor-agent = "factor_research.cli:main"
+
+[project.optional-dependencies]
+# optimization scripts (MIQP/MISOCP/DRO); MOSEK is commercial and optional.
+# pyscipopt provides SCIP so `--solver SCIP` works out of the box; ECOS_BB is the fallback.
+opt = ["cvxpy>=1.5", "ecos", "scs", "pyscipopt"]
+mosek = ["mosek"]
+llm-glm = ["zai-sdk>=0.2.3,<0.3"]
+dev = ["pytest>=8"]
+
+[tool.setuptools]
+# Business modules form an explicit package; maintenance scripts stay outside the wheel.
+packages = ["factor_research", "agent", "synthetic", "benchmark"]
+
+[tool.setuptools.package-data]
+agent = ["candidates_example.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

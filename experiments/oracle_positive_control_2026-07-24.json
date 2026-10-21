@@ -1,0 +1,42 @@
+{
+  "protocol_id": "oracle-positive-control-20260724",
+  "preregistered_at": "2026-07-24",
+  "question": "Measure pass rates of known injected mechanisms under the stated incremental gate, with separate negative and bare-ingredient controls.",
+  "grid": {
+    "kinds": [
+      "conditional",
+      "regime",
+      "nonlinear"
+    ],
+    "ics": [
+      0.03,
+      0.06,
+      0.1
+    ],
+    "x_col": "mom1m",
+    "y_col": "turn",
+    "n_assets": 150,
+    "n_months": 150
+  },
+  "roles": {
+    "true": "matching mechanism expression",
+    "negative": "zscore(bm)*sign(retvol)",
+    "bare_ingredient": "mom1m alone; no separate linear premium is injected, but correlation can produce predictive association"
+  },
+  "seed_policy": {
+    "development_seeds": [
+      2000,
+      2001,
+      2002,
+      2003,
+      2004
+    ],
+    "sealed_evaluation_seeds": "3000+ reserved; never used in development",
+    "note": "Seeds 7-117 are development-contaminated and excluded from inference."
+  },
+  "interpretation_rules": {
+    "gate_adequate": "true-role wbA rate at ic=0.06 >= 0.6 across kinds",
+    "gate_underpowered": "true-role wbA rate at ic=0.06 < 0.6 indicates insufficient recovery under this grid",
+    "negative_control_bound": "negative-role wbA rate must be ~0"
+  }
+}
